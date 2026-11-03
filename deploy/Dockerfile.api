@@ -1,0 +1,16 @@
+FROM node:22-alpine
+WORKDIR /app
+RUN apk add --no-cache openssl libc6-compat
+
+COPY package.json package-lock.json ./
+# bcrypt ставится из prebuilt-бинарников; devDependencies нужны (tsx, prisma)
+RUN npm ci
+
+COPY . .
+# Prisma-клиент генерируется в generated/prisma (в .gitignore)
+RUN DATABASE_URL="postgresql://x:x@localhost:5432/x" npx prisma generate
+
+ENV NODE_ENV=production
+EXPOSE 3000
+# Применяем миграции и запускаем API
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx index.ts"]

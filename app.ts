@@ -24,6 +24,9 @@ import { pinoHttp } from "pino-http";
 
 const app = express();
 
+// Работаем за reverse-proxy (Caddy): нужен реальный IP клиента для rate-limit
+app.set("trust proxy", 1);
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS
 	? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
 	: ["http://localhost:5173"];
